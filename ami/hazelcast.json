@@ -1,0 +1,59 @@
+{
+  "variables": {
+    "ami_prefix": "anci",
+    "region": "eu-central-1",
+    "hc_version": "3.8.3"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "{{ user `region` }}",
+      "ami_name": "{{ user `ami_prefix` }}/hazelcast-server-{{ user `hc_version` }}-{{ isotime \"2006-01-02\" }}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/hvm-ssd/ubuntu-xenial-*",
+          "root-device-type": "ebs"
+        },
+        "owners": [
+          "099720109477"
+        ],
+        "most_recent": true
+      },
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "tags": {
+        "Name": "Hazelcast Server {{ user `hc_version` }}",
+        "source-ami": "{{ .SourceAMI }}",
+        "os": "ubuntu-xenial",
+        "created-on": "{{ timestamp }}"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "update.sh",
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+      "pause_before": "10s"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo reboot"
+      ],
+      "expect_disconnect": true
+    },
+    {
+      "type": "file",
+      "source": "files/",
+      "destination": "/home/ubuntu",
+      "pause_before": "15s"
+    },
+    {
+      "type": "shell",
+      "script": "install-hc.sh",
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    }
+  ]
+}

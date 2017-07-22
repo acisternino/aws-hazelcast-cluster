@@ -1,0 +1,17 @@
+[Unit]
+Description=Hazelcast server
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=hazelcast
+Group=hazelcast
+ExecStart=/opt/hazelcast/start.sh
+Restart=on-abort
+TimeoutSec=300
+SyslogIdentifier=hazelcast-%i
+EnvironmentFile=/opt/hazelcast/hazelcast.conf
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

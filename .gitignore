@@ -1,0 +1,7 @@
+# Terraform
+.terraform*
+terraform.tfstate*
+#.terraform.tfstate*
+
+# Secrets
+private.tfvars
