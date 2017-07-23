@@ -48,7 +48,8 @@ if [[ -d "$HC_HOME" ]]; then
     mkdir -p $HC_HOME/lib
     mv -v *.jar $HC_HOME/lib
 
-    mv -v *.xml *.sh *.conf $HC_HOME
+    mv -v hazelcast.xml *.sh *.conf $HC_HOME
+    mv -v logback.xml $HC_HOME/lib
     chmod 755 $HC_HOME/*.sh
 
     echo "Fixing owner"
