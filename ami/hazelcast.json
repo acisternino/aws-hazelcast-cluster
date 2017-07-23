@@ -35,7 +35,7 @@
       "type": "shell",
       "script": "update.sh",
       "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
-      "pause_before": "10s"
+      "pause_before": "20s"
     },
     {
       "type": "shell",
@@ -48,12 +48,19 @@
       "type": "file",
       "source": "files/",
       "destination": "/home/ubuntu",
-      "pause_before": "15s"
+      "pause_before": "20s"
     },
     {
       "type": "shell",
       "script": "install-hc.sh",
       "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo find /root/.*history /home/*/.*history -exec rm -f {} \\;",
+        "sudo find / -name \"authorized_keys\" –exec rm –f {} \\;"
+      ]
     }
   ]
 }
