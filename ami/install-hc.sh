@@ -4,10 +4,11 @@ set -e
 # WARNING!
 # This script is meant to be run as root!
 
-# Configuration values
-HC_ALL_VERSION=3.8.3
-HC_AWS_VERSION=2.0.1
+# Hazelcast versions can be provided as environment variables
+HC_ALL_VERSION="${HC_ALL_V:-3.8.3}"
+HC_AWS_VERSION="${HC_AWS_V:-2.0.1}"
 
+# Other configuration values
 HC_USER=hazelcast
 HC_HOME=/opt/$HC_USER
 
@@ -16,20 +17,20 @@ LOGBACK_VERSION=1.2.3
 
 MAVEN_REPO=http://central.maven.org/maven2
 
-# Java
-echo "Installing Java"
-apt-get -y -qq install openjdk-8-jre-headless 1> /dev/null
-
 # Hazelcast
 echo "Adding \"$HC_USER\" user"
 useradd -b /opt -m -r -s /bin/false $HC_USER
 chmod 755 $HC_HOME
 
 echo "Preparing log directory"
-mkdir /var/log/hazelcast
-chown ${HC_USER}.${HC_USER} /var/log/hazelcast
+mkdir /var/log/$HC_USER
+chown ${HC_USER}.${HC_USER} /var/log/$HC_USER
 
 # These are downloaded to the default home directory and later moved to the correct place
+
+echo "Hazelcast version: $HC_ALL_VERSION"
+echo "Hazelcast AWS version: $HC_AWS_VERSION"
+
 echo "Downloading Hazelcast artifacts"
 curl -sS -O ${MAVEN_REPO}/com/hazelcast/hazelcast-all/${HC_ALL_VERSION}/hazelcast-all-${HC_ALL_VERSION}.jar
 curl -sS -O ${MAVEN_REPO}/com/hazelcast/hazelcast-aws/${HC_AWS_VERSION}/hazelcast-aws-${HC_AWS_VERSION}.jar
@@ -64,9 +65,11 @@ fi
 
 # Copy systemd unit to right place
 echo "Configuring systemd service"
-cp hazelcast.service /etc/systemd/system
+cp -v hazelcast.service /etc/systemd/system
 chmod 664 /etc/systemd/system/hazelcast.service
 
 # Configure the daemon
 systemctl daemon-reload
 systemctl enable hazelcast
+
+echo "Hazelcast installed correctly"

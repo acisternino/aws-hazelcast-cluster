@@ -1,14 +1,15 @@
 {
   "variables": {
-    "ami_prefix": "anci",
+    "ami_prefix": null,
     "region": "eu-central-1",
-    "hc_version": "3.8.3"
+    "hc_all_version": "3.8.3",
+    "hc_aws_version": "2.0.1"
   },
   "builders": [
     {
       "type": "amazon-ebs",
       "region": "{{ user `region` }}",
-      "ami_name": "{{ user `ami_prefix` }}/hazelcast-server-{{ user `hc_version` }}-{{ isotime \"2006-01-02\" }}",
+      "ami_name": "{{ user `ami_prefix` }}/hazelcast-server-{{ user `hc_all_version` }}-{{ isotime \"2006-01-02\" }}",
       "source_ami_filter": {
         "filters": {
           "virtualization-type": "hvm",
@@ -23,10 +24,9 @@
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "tags": {
-        "Name": "Hazelcast Server {{ user `hc_version` }}",
+        "Name": "Hazelcast Server {{ user `hc_all_version` }}",
         "source-ami": "{{ .SourceAMI }}",
-        "os": "ubuntu-xenial",
-        "created-on": "{{ timestamp }}"
+        "os": "ubuntu-xenial"
       }
     }
   ],
@@ -53,14 +53,7 @@
     {
       "type": "shell",
       "script": "install-hc.sh",
-      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "sudo find /root/.*history /home/*/.*history -exec rm -f {} \\;",
-        "sudo find / -name \"authorized_keys\" –exec rm –f {} \\;"
-      ]
+      "execute_command": "sudo sh -c '{{ .Vars }} HC_ALL_V=\"{{ user `hc_all_version` }}\" HC_AWS_V=\"{{ user `hc_aws_version` }}\" {{ .Path }}'"
     }
   ]
 }

@@ -7,12 +7,18 @@ export UCF_FORCE_CONFFNEW=YES
 ucf --purge /boot/grub/menu.lst
 
 export DEBIAN_FRONTEND=noninteractive
+
 apt-get update
 apt-get -y -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
 
 # install useful packages
 apt-get -y -qq install tmux tree jq
 
+# install java
+apt-get -y -qq install openjdk-8-jre-headless
+
 # clean up
 apt-get -y -qq autoclean
 apt-get -y -qq autoremove
+
+echo "Image updated correctly"
