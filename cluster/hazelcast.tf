@@ -22,15 +22,6 @@ data "aws_ami" "hazelcast_node" {
   }
 }
 
-data "template_file" "hazelcast_cfg" {
-  template = "${file("./server/hazelcast.xml")}"
-
-  vars {
-    region   = "${var.region}"
-    iam_role = "${aws_iam_role.hazelcast.name}"
-  }
-}
-
 ##---- Hazelcast servers ----------------------------------
 
 resource "aws_instance" "hazelcast" {
@@ -47,40 +38,16 @@ resource "aws_instance" "hazelcast" {
   # communicate with other instances in the VPC
   vpc_security_group_ids = ["${aws_vpc.main.default_security_group_id}"]
 
-  depends_on = ["aws_nat_gateway.nat_gw", "aws_instance.bastion"]
-
   # The "role" tag is extremely important because it is used by Hazelcast
   # for discovering other members of the cluster.
   # The name and value are currently hard-coded.
   tags = "${merge(var.tags, map("Name", "${var.name}-server-${count.index}"), map("role", "hazelcast-node"))}"
-
-  connection {
-    type         = "ssh"
-    user         = "ubuntu"
-    private_key  = "${file(var.key_file)}"
-    bastion_host = "${aws_instance.bastion.public_ip}"
-  }
-
-  # This will overwrite the default one in the AMI
-  provisioner "file" {
-    content     = "${data.template_file.hazelcast_cfg.rendered}"
-    destination = "/home/ubuntu/hazelcast.xml"
-  }
-
-  # Prepare configuration file and restart sevice for it to work
-  provisioner "remote-exec" {
-    inline = [
-      "sudo cp hazelcast.xml /opt/hazelcast",
-      "sudo chown hazelcast.hazelcast /opt/hazelcast/hazelcast.xml",
-      "sudo systemctl restart hazelcast",
-    ]
-  }
 }
 
 ##---- Instance role --------------------------------------
 
 resource "aws_iam_role" "hazelcast" {
-  name        = "hazelcast-role-${aws_vpc.main.id}"
+  name        = "hazelcast-server-role"
   description = "Instance role for an Hazelcast instance"
 
   assume_role_policy = <<EOF
@@ -101,12 +68,13 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "hazelcast" {
-  name = "hazelcast-profile-${aws_vpc.main.id}"
+  name = "hazelcast-instance-profile"
   role = "${aws_iam_role.hazelcast.name}"
 }
 
 ##---- Policies -------------------------------------------
 
+# Add more policies here
 resource "aws_iam_role_policy" "hazelcast" {
   name = "hazelcast-policy"
   role = "${aws_iam_role.hazelcast.id}"
@@ -120,9 +88,15 @@ resource "aws_iam_role_policy" "hazelcast" {
       "Action": [
         "ec2:DescribeInstances"
       ],
-      "Resource": [
-        "*"
-      ]
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:Get*",
+        "s3:List*"
+      ],
+      "Resource": "arn:aws:s3:::*"
     }
   ]
 }
