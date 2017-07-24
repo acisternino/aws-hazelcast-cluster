@@ -41,6 +41,8 @@ resource "aws_instance" "hazelcast" {
   key_name      = "${var.key_name}"
   subnet_id     = "${aws_subnet.private.id}"
 
+  iam_instance_profile = "${aws_iam_instance_profile.hazelcast.id}"
+
   # Cluster members get the VPC default security group to
   # communicate with other instances in the VPC
   vpc_security_group_ids = ["${aws_vpc.main.default_security_group_id}"]
@@ -59,11 +61,13 @@ resource "aws_instance" "hazelcast" {
     bastion_host = "${aws_instance.bastion.public_ip}"
   }
 
+  # This will overwrite the default one in the AMI
   provisioner "file" {
     content     = "${data.template_file.hazelcast_cfg.rendered}"
     destination = "/home/ubuntu/hazelcast.xml"
   }
 
+  # Prepare configuration file and restart sevice for it to work
   provisioner "remote-exec" {
     inline = [
       "sudo cp hazelcast.xml /opt/hazelcast",

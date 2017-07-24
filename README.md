@@ -44,7 +44,9 @@ with Terraform.
                 "iam:CreateRole",
                 "iam:GetRole",
                 "iam:DeleteRole",
+                "iam:PassRole",
                 "iam:AddRoleToInstanceProfile",
+                "iam:RemoveRoleFromInstanceProfile",
                 "iam:CreateInstanceProfile",
                 "iam:GetInstanceProfile",
                 "iam:DeleteInstanceProfile",
@@ -55,7 +57,7 @@ with Terraform.
                 "iam:DeleteRolePolicy"
             ],
             "Resource": [
-                "arn:aws:iam::*:*"
+                "*"
             ]
         }
     ]
