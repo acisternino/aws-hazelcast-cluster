@@ -76,7 +76,7 @@ resource "aws_instance" "hazelcast" {
 ##---- Instance role --------------------------------------
 
 resource "aws_iam_role" "hazelcast" {
-  name        = "hazelcast-role"
+  name        = "hazelcast-role-${aws_vpc.main.id}"
   description = "Instance role for an Hazelcast instance"
 
   assume_role_policy = <<EOF
@@ -97,7 +97,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "hazelcast" {
-  name = "hazelcast-profile"
+  name = "hazelcast-profile-${aws_vpc.main.id}"
   role = "${aws_iam_role.hazelcast.name}"
 }
 
