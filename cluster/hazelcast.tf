@@ -47,6 +47,9 @@ resource "aws_instance" "hazelcast" {
 
   depends_on = ["aws_nat_gateway.nat_gw", "aws_instance.bastion"]
 
+  # The "role" tag is extremely important because it is used by Hazelcast
+  # for discovering other members of the cluster.
+  # The name and value are currently hard-coded.
   tags = "${merge(var.tags, map("Name", "${var.name}-server-${count.index}"), map("role", "hazelcast-node"))}"
 
   connection {

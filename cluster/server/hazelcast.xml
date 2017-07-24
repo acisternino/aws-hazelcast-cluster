@@ -3,6 +3,10 @@
            xmlns="http://www.hazelcast.com/schema/config"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
+    <!--
+     | Hazelcast configuration file for running a default-configured cluster
+     | on AWS.
+    -->
     <properties>
         <property name="hazelcast.discovery.enabled">true</property>
         <property name="hazelcast.logging.type">slf4j</property>
@@ -23,7 +27,7 @@
             <aws enabled="false"/>
             <discovery-strategies>
                 <!-- See: https://github.com/hazelcast/hazelcast-aws -->
-                <!-- Class equals to the DiscoveryStrategy not the factory! -->
+                <!-- "class" attribute equals to the DiscoveryStrategy not the factory! -->
                 <discovery-strategy enabled="true" class="com.hazelcast.aws.AwsDiscoveryStrategy">
                     <properties>
                        <property name="iam-role">${iam_role}</property>
