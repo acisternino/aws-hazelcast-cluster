@@ -1,8 +1,11 @@
 #!/bin/bash
-set -e
-
+#
+# Hazelcast installation script.
+#
 # WARNING!
 # This script is meant to be run as root!
+
+set -e
 
 # Hazelcast versions can be provided as environment variables
 HC_ALL_VERSION="${HC_ALL_V:-3.8.3}"

@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Hazelcast starter script
+
 set -e
 
 HAZELCAST_HOME=$(dirname "$0")
