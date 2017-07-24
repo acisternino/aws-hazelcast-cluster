@@ -21,7 +21,11 @@ variable "vpc_cidr" {
 }
 
 variable "key_name" {
-  description = "Name of the SSH key."
+  description = "Name of the SSH key as registered in AWS."
+}
+
+variable "key_file" {
+  description = "File name of the private SSH key corresponding to the key_name."
 }
 
 variable "source_cidr" {
@@ -41,7 +45,7 @@ variable "bastion_type" {
 ##---- Hazelcast ------------------------------------------
 
 variable "ami_prefix" {
-  description = "Prefix for the Hazelcast Server AMI name."
+  description = "Prefix used when searching the Hazelcast Server AMI."
 }
 
 variable "ami_owner" {
