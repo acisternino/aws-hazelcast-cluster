@@ -23,7 +23,7 @@ data "aws_ami" "hazelcast_node" {
 }
 
 data "template_file" "hazelcast_cfg" {
-  template = "${file("hazelcast.xml")}"
+  template = "${file("./server/hazelcast.xml")}"
 
   vars {
     region   = "${var.region}"
@@ -55,7 +55,7 @@ resource "aws_instance" "hazelcast" {
   connection {
     type         = "ssh"
     user         = "ec2-user"
-    private_key  = "${file(${var.key_file})}"
+    private_key  = "${file(var.key_file)}"
     bastion_host = "${aws_instance.bastion.public_ip}"
   }
 
