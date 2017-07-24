@@ -9,10 +9,13 @@ ucf --purge /boot/grub/menu.lst
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
-apt-get -y -qq -o Dpkg::Options::="--force-confnew" dist-upgrade
+apt-get -y -qq -o Dpkg::Options::="--force-confnew" upgrade
+
+# update kernel packages without using dist-upgrade
+apt-get -y -qq -o Dpkg::Options::="--force-confnew" install linux-aws linux-headers-aws linux-image-aws
 
 # install useful packages
-apt-get -y -qq install tmux tree jq
+apt-get -y -qq install tmux tree jq awscli
 
 # install java
 apt-get -y -qq install openjdk-8-jre-headless

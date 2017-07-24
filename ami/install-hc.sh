@@ -7,9 +7,10 @@
 
 set -e
 
-# Hazelcast versions can be provided as environment variables
+# These can provided as environment variables
 HC_ALL_VERSION="${HC_ALL_V:-3.8.3}"
 HC_AWS_VERSION="${HC_AWS_V:-2.0.1}"
+REGION="${AWS_REGION:-eu-central-1}"
 
 # Other configuration values
 HC_USER=hazelcast
@@ -27,7 +28,8 @@ chmod 755 $HC_HOME
 
 echo "Preparing log directory"
 mkdir /var/log/$HC_USER
-chown ${HC_USER}.${HC_USER} /var/log/$HC_USER
+touch /var/log/$HC_USER/hazelcast.log
+chown -R ${HC_USER}.${HC_USER} /var/log/$HC_USER
 
 # These are downloaded to the default home directory and later moved to the correct place
 
@@ -36,7 +38,9 @@ echo "Hazelcast AWS version: $HC_AWS_VERSION"
 
 echo "Downloading Hazelcast artifacts"
 curl -sS -O ${MAVEN_REPO}/com/hazelcast/hazelcast-all/${HC_ALL_VERSION}/hazelcast-all-${HC_ALL_VERSION}.jar
-curl -sS -O ${MAVEN_REPO}/com/hazelcast/hazelcast-aws/${HC_AWS_VERSION}/hazelcast-aws-${HC_AWS_VERSION}.jar
+
+# momentarily commented out until 2.0.2 is released
+#curl -sS -O ${MAVEN_REPO}/com/hazelcast/hazelcast-aws/${HC_AWS_VERSION}/hazelcast-aws-${HC_AWS_VERSION}.jar
 
 echo "Downloading logging artifacts"
 curl -sS -O ${MAVEN_REPO}/org/slf4j/slf4j-api/${SLF4J_VERSION}/slf4j-api-${SLF4J_VERSION}.jar
@@ -46,14 +50,17 @@ curl -sS -O ${MAVEN_REPO}/ch/qos/logback/logback-classic/${LOGBACK_VERSION}/logb
 # Move things to the proper place
 if [[ -d "$HC_HOME" ]]; then
 
+    echo "Setting region in \"hazelcast.xml\" to ${REGION}"
+    sed "s/@@region@@/${REGION}/g" < hazelcast.xml > hazelcast.xml.temp
+    mv hazelcast.xml.temp hazelcast.xml
+
     echo "Moving Hazelcast files to \"$HC_HOME\""
 
     # Jars go into lib
     mkdir -p $HC_HOME/lib
     mv -v *.jar $HC_HOME/lib
 
-    mv -v hazelcast.xml *.sh *.conf $HC_HOME
-    mv -v logback.xml $HC_HOME/lib
+    mv -v *.xml *.sh *.conf $HC_HOME
     chmod 755 $HC_HOME/*.sh
 
     echo "Fixing owner"

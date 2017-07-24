@@ -1,14 +1,14 @@
 {
   "variables": {
     "ami_prefix": null,
-    "region": "eu-central-1",
+    "aws_region": "eu-central-1",
     "hc_all_version": "3.8.3",
     "hc_aws_version": "2.0.1"
   },
   "builders": [
     {
       "type": "amazon-ebs",
-      "region": "{{ user `region` }}",
+      "region": "{{ user `aws_region` }}",
       "ami_name": "{{ user `ami_prefix` }}/hazelcast-server-{{ user `hc_all_version` }}-{{ isotime \"2006-01-02\" }}",
       "source_ami_filter": {
         "filters": {
@@ -53,7 +53,12 @@
     {
       "type": "shell",
       "script": "install-hc.sh",
-      "execute_command": "sudo sh -c '{{ .Vars }} HC_ALL_V=\"{{ user `hc_all_version` }}\" HC_AWS_V=\"{{ user `hc_aws_version` }}\" {{ .Path }}'"
+      "environment_vars": [
+        "HC_ALL_V={{ user `hc_all_version` }}",
+        "HC_AWS_V={{ user `hc_aws_version` }}",
+        "AWS_REGION={{ user `aws_region` }}"
+      ],
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'"
     }
   ]
 }
