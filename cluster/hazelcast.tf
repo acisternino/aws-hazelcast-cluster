@@ -54,7 +54,7 @@ resource "aws_instance" "hazelcast" {
 
   connection {
     type         = "ssh"
-    user         = "ec2-user"
+    user         = "ubuntu"
     private_key  = "${file(var.key_file)}"
     bastion_host = "${aws_instance.bastion.public_ip}"
   }
