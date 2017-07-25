@@ -32,7 +32,7 @@ resource "aws_instance" "hazelcast" {
   key_name      = "${var.key_name}"
   subnet_id     = "${aws_subnet.private.id}"
 
-  iam_instance_profile = "${aws_iam_instance_profile.hazelcast.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.hazelcast.name}"
 
   # Cluster members get the VPC default security group to
   # communicate with other instances in the VPC
@@ -46,9 +46,16 @@ resource "aws_instance" "hazelcast" {
 
 ##---- Instance role --------------------------------------
 
+resource "aws_iam_instance_profile" "hazelcast" {
+  name = "hazelcast-instance-profile"
+  role = "${aws_iam_role.hazelcast.name}"
+}
+
+# The role name is hard-coded in the Hazelcast configuration embedded in the AMI
+# and used for cluster dicovery.
 resource "aws_iam_role" "hazelcast" {
   name        = "hazelcast-server-role"
-  description = "Instance role for an Hazelcast instance"
+  description = "Instance role for an Hazelcast server instance"
 
   assume_role_policy = <<EOF
 {
@@ -67,16 +74,11 @@ resource "aws_iam_role" "hazelcast" {
 EOF
 }
 
-resource "aws_iam_instance_profile" "hazelcast" {
-  name = "hazelcast-instance-profile"
-  role = "${aws_iam_role.hazelcast.name}"
-}
-
 ##---- Policies -------------------------------------------
 
 # Add more policies here
 resource "aws_iam_role_policy" "hazelcast" {
-  name = "hazelcast-policy"
+  name = "hazelcast-server-policy"
   role = "${aws_iam_role.hazelcast.id}"
 
   policy = <<EOF
