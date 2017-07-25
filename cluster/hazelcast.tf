@@ -51,8 +51,8 @@ resource "aws_iam_instance_profile" "hazelcast" {
   role = "${aws_iam_role.hazelcast.name}"
 }
 
-# The role name is hard-coded in the Hazelcast configuration embedded in the AMI
-# and used for cluster dicovery.
+# The role name is hard-coded in the Hazelcast configuration embedded in
+# the AMI and used for cluster discovery.
 resource "aws_iam_role" "hazelcast" {
   name        = "hazelcast-server-role"
   description = "Instance role for an Hazelcast server instance"

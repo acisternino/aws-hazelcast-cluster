@@ -5,16 +5,6 @@
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>${HAZELCAST_LOG_DIR}/hazelcast.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <!-- daily rollover. Make sure the path matches the one in the file element or else
-           the rollover logs are placed in the working directory. -->
-      <fileNamePattern>${HAZELCAST_LOG_DIR}/hazelcast-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-        <maxFileSize>10MB</maxFileSize>
-      </timeBasedFileNamingAndTriggeringPolicy>
-      <!-- keep 10 days' worth of history -->
-      <maxHistory>10</maxHistory>
-    </rollingPolicy>
     <encoder>
       <charset>UTF-8</charset>
       <pattern>%d [%thread] %-5level - %msg%n</pattern>

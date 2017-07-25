@@ -34,7 +34,7 @@ JAVA_OPTS="$JAVA_OPTS -Xms$((avail_mem / 2))m -Xmx${avail_mem}m"
 
 # append other tuning options to JAVA_OPTS
 
-sleep 60
+sleep 30
 
 echo "########################################"
 echo "# Hazelcast server"
