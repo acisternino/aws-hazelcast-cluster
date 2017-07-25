@@ -22,23 +22,19 @@ fi
 
 echo "Path to Java: \"$RUN_JAVA\""
 
-#### you can enable following variables by uncommenting them
+# set G1 garbage collector
+JAVA_OPTS="-XX:+UseG1GC"
 
-#### minimum heap size
-# MIN_HEAP_SIZE=1G
+# find optimal heap size
+mem_perc=0.85        # 85% of available memory
 
-#### maximum heap size
-# MAX_HEAP_SIZE=1G
+avail_mem=$(awk "/^MemAvailable/ { printf \"%d\", \$2 * $mem_perc / 1024 }" /proc/meminfo)
 
-if [[ "x$MIN_HEAP_SIZE" != "x" ]]; then
-    JAVA_OPTS="$JAVA_OPTS -Xms${MIN_HEAP_SIZE}"
-fi
-
-if [[ "x$MAX_HEAP_SIZE" != "x" ]]; then
-    JAVA_OPTS="$JAVA_OPTS -Xmx${MAX_HEAP_SIZE}"
-fi
+JAVA_OPTS="$JAVA_OPTS -Xms$((avail_mem / 2))m -Xmx${avail_mem}m"
 
 # append other tuning options to JAVA_OPTS
+
+sleep 60
 
 echo "########################################"
 echo "# Hazelcast server"
