@@ -34,6 +34,8 @@ resource "aws_instance" "hazelcast" {
 
   iam_instance_profile = "${aws_iam_instance_profile.hazelcast.name}"
 
+  depends_on = ["aws_route_table.private"]
+
   # Cluster members get the VPC default security group to
   # communicate with other instances in the VPC
   vpc_security_group_ids = ["${aws_vpc.main.default_security_group_id}"]
@@ -46,6 +48,8 @@ resource "aws_instance" "hazelcast" {
 
 ##---- Instance role --------------------------------------
 
+# WARNING! This could be left hanging in case of errors.
+# Delete manually!
 resource "aws_iam_instance_profile" "hazelcast" {
   name = "hazelcast-instance-profile"
   role = "${aws_iam_role.hazelcast.name}"
