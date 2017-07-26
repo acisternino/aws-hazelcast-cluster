@@ -157,13 +157,54 @@ Execute these steps in the `ami` directory.
    the name as a path component to better identify the AMI.
 3. Validate the template (change _myprefix_ to your chosen one!):
    ```
-   packer validate --var 'ami_prefix=myprefix' hazelcast.json
+   $ packer validate --var 'ami_prefix=myprefix' hazelcast.json
    ```
 4. If validation is successful, run the template:
    ```
-   packer build --var 'ami_prefix=myprefix' hazelcast.json
+   $ packer build --var 'ami_prefix=myprefix' hazelcast.json
    ```
 5. If packer terminates correctly an Hazelcast Server AMI will be available in
    your account.
 6. Verify that the AMI is available in your AWS console and save the owner account
    number in the `private.tfvars` file as stated above.
+
+### Deploy the Hazelcast cluster
+
+Execute these steps in the `cluster` directory.
+
+1. Verify that the information in the `private.tfvars` file is correct and
+   matches the AMI built in the previous step.
+2. Check that the resources can be created:
+   ```
+   $ terraform plan -var-file=private.tfvars
+   ```
+3. If terraform reports no errors, deploy the cluster:
+   ```
+   $ terraform apply -var-file=private.tfvars
+   ```
+4. To destroy the cluster and free al the AWS resources execute this command
+   from the same directory:
+   ```
+   $ terraform destroy -var-file=private.tfvars
+   ```
+
+### Scale the cluster
+
+The number of Hazelcast instances in the cluster can be controlled using the
+`hc_num` variable.
+
+It can be used while creating the cluster or to change the number of instances
+of a running cluster.
+
+In both cases we have to tell terraform the new number and _apply_ the changes:
+```
+$ terraform apply -var-file=private.tfvars -var 'hc_num=6'
+```
+
+The previous command can create a 6 instances cluster from scratch or change the
+state of an existing one.
+
+Note that in the latter case the command **must** be executed in the same
+directory where the terraform state file `terraform.tfstate` is located.
+
+## Troubleshooting
