@@ -28,7 +28,7 @@
                        <property name="region">@@region@@</property>
                        <property name="tag-key">role</property>
                        <property name="tag-value">hazelcast-node</property>
-                       <property name="connection-timeout-seconds">40</property>
+                       <property name="connection-timeout-seconds">30</property>
                     </properties>
                 </discovery-strategy>
             </discovery-strategies>

@@ -3,8 +3,15 @@
 
   <property name="HAZELCAST_LOG_DIR" value="/var/log/hazelcast"/>
 
-  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+  <appender name="FILE" class="ch.qos.logback.core.RollingFileAppender">
     <file>${HAZELCAST_LOG_DIR}/hazelcast.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>${HAZELCAST_LOG_DIR}/hazelcast-%d{yyyy-MM-dd}.log</fileNamePattern>
+      <!-- keep 10 days' worth of history capped at 1GB total size -->
+      <maxHistory>10</maxHistory>
+      <totalSizeCap>1GB</totalSizeCap>
+    </rollingPolicy>
     <encoder>
       <charset>UTF-8</charset>
       <pattern>%d [%thread] %-5level - %msg%n</pattern>

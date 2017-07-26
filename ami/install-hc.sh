@@ -75,11 +75,11 @@ fi
 
 # Copy systemd unit to right place
 echo "Configuring systemd service"
-cp -v hazelcast.service /etc/systemd/system
-chmod 664 /etc/systemd/system/hazelcast.service
+cp -v hazelcast.service hazelcast.timer /etc/systemd/system
+chmod 664 /etc/systemd/system/hazelcast.*
 
 # Configure the daemon
 systemctl daemon-reload
 systemctl enable hazelcast
 
-echo "Hazelcast installed correctly"
+echo "Hazelcast Server installed correctly"

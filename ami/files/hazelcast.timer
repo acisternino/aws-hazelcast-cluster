@@ -1,0 +1,8 @@
+[Unit]
+Description=Hazelcast server
+
+[Timer]
+OnBootSec=30
+
+[Install]
+WantedBy=multi-user.target
