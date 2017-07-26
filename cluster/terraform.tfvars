@@ -6,7 +6,7 @@ name = "hazelcast"
 
 region = "eu-central-1"
 vpc_cidr = "10.27.0.0/16"
-hc_num = 1
+hc_num = 4
 
 # Common tags
 tags = {
