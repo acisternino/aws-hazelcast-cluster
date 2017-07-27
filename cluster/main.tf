@@ -37,9 +37,9 @@ variable "tags" {
   type        = "map"
 }
 
-variable "bastion_type" {
-  description = "EC2 instance type for the bastion host."
-  default     = "t2.small"
+variable "worker_type" {
+  description = "EC2 instance type for the work node."
+  default     = "t2.medium"
 }
 
 ##---- Hazelcast ------------------------------------------
@@ -93,9 +93,9 @@ data "aws_ami" "ubuntu" {
 
 ##---- Outputs ------------------------------------------
 
-output "bastion_ip" {
-  description = "Public address of the bastion host."
-  value       = "${aws_instance.bastion.public_ip}"
+output "worker_ip" {
+  description = "Public address of the work node."
+  value       = "${aws_instance.worker.public_ip}"
 }
 
 output "vpc_id" {
@@ -199,32 +199,34 @@ resource "aws_eip" "nat_ip" {
   vpc = true
 }
 
-##---- Bastion host ---------------------------------------
+##---- Work node ------------------------------------------
 
-resource "aws_instance" "bastion" {
+resource "aws_instance" "worker" {
   ami           = "${data.aws_ami.ubuntu.id}"
-  instance_type = "${var.bastion_type}"
+  instance_type = "${var.worker_type}"
   key_name      = "${var.key_name}"
   subnet_id     = "${aws_subnet.public.id}"
+  user_data     = "${file("./scripts/update.sh")}"
 
-  user_data = "${file("./scripts/update.sh")}"
+  # Same role as servers for allowing auto discovery
+  iam_instance_profile = "${aws_iam_instance_profile.hazelcast.name}"
+
+  depends_on = ["aws_internet_gateway.igw"]
 
   associate_public_ip_address = true
 
   vpc_security_group_ids = [
-    "${aws_security_group.bastion.id}",
+    "${aws_security_group.worker.id}",
     "${aws_vpc.main.default_security_group_id}",
   ]
 
-  depends_on = ["aws_internet_gateway.igw"]
-
-  tags = "${merge(var.tags, map("Name", "${var.name}-bastion-host"))}"
+  tags = "${merge(var.tags, map("Name", "${var.name}-work-node"))}"
 }
 
 ##---- Security groups ------------------------------------
 
-# SSH access from outside world
-resource "aws_security_group" "bastion" {
+# SSH and HTTP access from the outside world
+resource "aws_security_group" "worker" {
   name        = "Restricted SSH and HTTP"
   description = "SSH and HTTP access from local IP"
   vpc_id      = "${aws_vpc.main.id}"
