@@ -39,7 +39,7 @@ variable "tags" {
 
 variable "bastion_type" {
   description = "EC2 instance type for the bastion host."
-  default     = "t2.micro"
+  default     = "t2.small"
 }
 
 ##---- Hazelcast ------------------------------------------
