@@ -15,7 +15,12 @@ apt-get -y -qq -o Dpkg::Options::="--force-confnew" upgrade
 apt-get -y -qq -o Dpkg::Options::="--force-confnew" install linux-aws linux-headers-aws linux-image-aws
 
 # install useful packages
-apt-get -y -qq install tmux tree jq awscli
+apt-get -y -qq install \
+    tmux    \
+    tree    \
+    jq      \
+    awscli  \
+    openjdk-8-jdk-headless
 
 # clean up
 apt-get -y -qq autoclean
