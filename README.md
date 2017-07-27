@@ -1,8 +1,8 @@
 # Simple development Hazelcast cluster
 
-A [Terraform](https://www.terraform.io/) and [Packer](https://www.packer.io/)
-configuration for creating a simple [Hazelcast](https://hazelcast.org/) cluster
-on AWS.
+> A [Terraform](https://www.terraform.io/) and [Packer](https://www.packer.io/)
+> configuration for creating a simple [Hazelcast](https://hazelcast.org/) cluster
+> on AWS.
 
 The cluster is suited for development work and has the following characteristics:
 
@@ -10,12 +10,25 @@ The cluster is suited for development work and has the following characteristics
 * Hazelcast instances are located in a private subnet with access to the Internet
   through a NAT Gateway (e.g. for updates.)
 * By default 4 `r4.large` instances are created.
-* A bastion host for public access located in a public subnet.
+* A *Work Instance* is created in a public subnet for deploying user code.
+  This instance doubles as bastion host.
 * All instances in the VPC can communicate with each other.
+* Only one availability zone is used for simplicity.
+* A pre-defined tag is assigned to all Hazelcast instances for easy service discovery.
+
+## Table of Contents
+
+- [Requisites](#requisites)
+- [Deploying the cluster](#deploying-the-cluster)
+    - [Build the Hazelcast AMI](#build-the-hazelcast-ami)
+    - [Deploy the Hazelcast cluster](#deploy-the-hazelcast-cluster)
+    - [Scale the cluster](#scale-the-cluster)
+- [Troubleshooting](#troubleshooting)
+    - [Problems creating or deleting the instance profile](#problems-creating-or-deleting-the-instance-profile)
 
 ## Requisites
 
-1. An AWS account with enough rights (see below.)
+1. An AWS account with the proper rights (see below.)
 2. Terraform [installed on your system](https://www.terraform.io/intro/getting-started/install.html).
 3. Packer [installed on your system](https://www.packer.io/docs/install/index.html).
 
@@ -69,13 +82,13 @@ You should also have an SSH key defined in your account and the corresponding
 
 ## Deploying the cluster
 
-Cluster depoyment is divided in two steps:
+Cluster deployment is divided in two steps:
 
 1. First an Hazelcast Server AMI is built with Packer.
 2. The cluster can then be deployed using Terraform.
 
 The [ami](ami/) directory contains the Packer scripts for creating an updated
-Ubuntu Xenial AMI with the Hazelcast server configured and launched automatically
+Ubuntu 16.04 LTS AMI with the Hazelcast server configured and launched automatically
 at boot time.
 
 This AMI does not need to be built each time the cluster is deployed. Only before
@@ -93,7 +106,7 @@ For building the AMI:
   where `X.Y.Z` is the Hazelcast version and `YYY-MM-DD` the AMI creation date.
   
   The prefix must be specified in the command line when invoking Packer.
-* Check the lastest avaialble versions of Hazelcast and of the
+* Check the latest available versions of Hazelcast and of the
   [Hazelcast AWS](https://github.com/hazelcast/hazelcast-aws) project.
   
   If a new version has been released, change the values defined at the top of
@@ -106,7 +119,7 @@ For deploying the cluster:
   git repository to avoid sharing private information. The format of the file is
   that of [Terraform variables](https://www.terraform.io/docs/configuration/variables.html).
 
-  Add the folowing variables to the file:
+  Add the following variables to the file:
     * The AMI prefix defined previously when building the AMI. The var name is `ami_prefix`:
       ```
       ami_prefix = "foobar"
@@ -182,13 +195,13 @@ Execute these steps in the `cluster` directory.
    ```
    $ terraform apply -var-file=private.tfvars
    ```
-4. To destroy the cluster and free al the AWS resources execute this command
+4. To destroy the cluster and free all the AWS resources, execute this command
    from the same directory:
    ```
    $ terraform destroy -var-file=private.tfvars
    ```
 
-### Scale the cluster
+### Scaling the cluster
 
 The number of Hazelcast instances in the cluster can be controlled using the
 `hc_num` variable.
@@ -207,4 +220,25 @@ state of an existing one.
 Note that in the latter case the command **must** be executed in the same
 directory where the terraform state file `terraform.tfstate` is located.
 
+Other parameters can also be changed by setting variables either in the `tfvars`
+files or directly on the command line.
+
 ## Troubleshooting
+
+### Problems creating or deleting the instance profile
+
+If you get error messages during a `plan` or `apply` phase because of an already existing
+[instance profile](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html),
+verify if the profile already exists, maybe as a leftover from a previous session:
+
+```bash
+$ aws iam list-instance-profiles | jq '.InstanceProfiles[].InstanceProfileName'
+"hazelcast-instance-profile"
+...
+```
+If, like above, this is the case, then the profile must be manually deleted
+before trying again:
+
+```bash
+$ aws iam delete-instance-profile --instance-profile-name hazelcast-instance-profile
+```
