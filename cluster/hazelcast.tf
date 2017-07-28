@@ -1,6 +1,9 @@
 /*
  * Simple Hazelcast cluster for development purposes.
  *
+ * Copyright (c) 2017 Andrea Cisternino
+ * Licensed under the Apache License, version 2.0.
+ *
  * Hazelcast server instances.
  */
 
@@ -44,67 +47,4 @@ resource "aws_instance" "hazelcast" {
   # for discovering other members of the cluster.
   # The name and value are currently hard-coded.
   tags = "${merge(var.tags, map("Name", "${var.name}-server-${count.index}"), map("role", "hazelcast-node"))}"
-}
-
-##---- Instance role --------------------------------------
-
-# WARNING! This could be left hanging in case of errors.
-# Delete manually!
-resource "aws_iam_instance_profile" "hazelcast" {
-  name = "hazelcast-instance-profile"
-  role = "${aws_iam_role.hazelcast.name}"
-}
-
-# The role name is hard-coded in the Hazelcast configuration embedded in
-# the AMI and used for cluster discovery.
-resource "aws_iam_role" "hazelcast" {
-  name        = "hazelcast-server-role"
-  description = "Instance role for an Hazelcast server instance"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-##---- Policies -------------------------------------------
-
-# Add more policies here
-resource "aws_iam_role_policy" "hazelcast" {
-  name = "hazelcast-server-policy"
-  role = "${aws_iam_role.hazelcast.id}"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:DescribeInstances"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:Get*",
-        "s3:List*"
-      ],
-      "Resource": "arn:aws:s3:::*"
-    }
-  ]
-}
-EOF
 }
