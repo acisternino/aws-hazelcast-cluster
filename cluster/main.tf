@@ -1,6 +1,9 @@
 /*
  * Simple Hazelcast cluster for development purposes.
  *
+ * Copyright (c) 2017 Andrea Cisternino
+ * Licensed under the Apache License, version 2.0.
+ *
  * Main infrastructure.
  */
 
