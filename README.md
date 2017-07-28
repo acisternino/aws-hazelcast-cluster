@@ -1,23 +1,12 @@
 # Simple development Hazelcast cluster
 
-> A [Terraform](https://www.terraform.io/) and [Packer](https://www.packer.io/)
-> configuration for creating a simple [Hazelcast](https://hazelcast.org/) cluster
-> on AWS.
-
-The cluster is suited for development work and has the following characteristics:
-
-* Runs inside a dedicated VPC.
-* Hazelcast instances are located in a private subnet with access to the Internet
-  through a NAT Gateway (e.g. for updates.)
-* By default 4 `r4.large` instances are created.
-* A *Work Instance* is created in a public subnet for deploying user code.
-  This instance doubles as bastion host.
-* All instances in the VPC can communicate with each other.
-* Only one availability zone is used for simplicity.
-* A pre-defined tag is assigned to all Hazelcast instances for easy service discovery.
+[Terraform](https://www.terraform.io/) and [Packer](https://www.packer.io/)
+scripts for creating a simple [Hazelcast](https://hazelcast.org/) cluster
+on AWS.
 
 ## Table of Contents
 
+- [Getting started](#getting-started)
 - [Requisites](#requisites)
 - [Deploying the cluster](#deploying-the-cluster)
     - [Build the Hazelcast AMI](#build-the-hazelcast-ami)
@@ -26,11 +15,37 @@ The cluster is suited for development work and has the following characteristics
 - [Troubleshooting](#troubleshooting)
     - [Problems creating or deleting the instance profile](#problems-creating-or-deleting-the-instance-profile)
 
+## Getting started
+
+The cluster created by the scripts in this project is suited for development work
+and for easily exploring Hazelcast's capabilities.
+
+It has the following characteristics:
+
+* Runs inside a dedicated VPC.
+* Hazelcast instances are located in a private subnet with access to the Internet
+  through a NAT Gateway (e.g. for updates.)
+* Only one availability zone is used for simplicity.
+* By default 4 `r4.large` instances are created. Both type and number are easily
+  customizable.
+* A *Worker* EC2 instance is created in a public subnet for deploying user code.
+  This instance doubles as bastion host.
+* All instances in the VPC can communicate with each other.
+* A predefined tag is assigned to all Hazelcast instances for easy service
+  discovery using the [hazelcast-aws](https://github.com/hazelcast/hazelcast-aws)
+  project.
+
+Because of the fixed configuration of the Hazelcast Server cluster nodes, application
+code is better developed as an [Hazelcast Client](http://docs.hazelcast.org/docs/3.8.3/manual/html-single/index.html#hazelcast-java-client)
+and deployed either on the worker node or on other instances created ad-hoc
+in the public subnet.
+
 ## Requisites
 
 1. An AWS account with the proper rights (see below.)
 2. Terraform [installed on your system](https://www.terraform.io/intro/getting-started/install.html).
 3. Packer [installed on your system](https://www.packer.io/docs/install/index.html).
+4. Some knowledge of Terraform is highly recommended.
 
 AWS authentication is handled by either defining the two `AWS_ACCESS_KEY_ID` and
 `AWS_SECRET_ACCESS_KEY` environment variables or by having a properly defined
@@ -200,6 +215,10 @@ Execute these steps in the `cluster` directory.
    ```
    $ terraform destroy -var-file=private.tfvars
    ```
+
+Currently, Terraform is configured to maintain a local state file. It is **very**
+important that the `terraform.tfstate` file is not tampered with while the cluster
+is running.
 
 ### Scaling the cluster
 
