@@ -13,4 +13,5 @@ tags = {
   cluster-name = "hermes"
   project      = "hazelcast-cluster"
   built-with   = "terraform"
+  environment  = "development"
 }
