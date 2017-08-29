@@ -95,7 +95,7 @@ with Terraform.
 You should also have an SSH key defined in your account and the corresponding
 `pem` file available on your HD.
 
-## Deploying the cluster
+## Building and deploying the cluster
 
 Cluster deployment is divided in two steps:
 
@@ -124,8 +124,8 @@ For building the AMI:
 * Check the latest available versions of Hazelcast and of the
   [Hazelcast AWS](https://github.com/hazelcast/hazelcast-aws) project.
   
-  If a new version has been released, change the values defined at the top of
-  [hazelcast.json](ami/hazelcast.json) and submit a pull-request :)
+  If a new version has been released, update the [hazelcast.json](ami/hazelcast.json)
+  and [install-hc.sh](ami/install-hc.sh) files and submit a pull-request :)
 
 For deploying the cluster:
 
