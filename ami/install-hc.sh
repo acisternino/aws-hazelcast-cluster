@@ -8,7 +8,7 @@
 set -e
 
 # These can provided as environment variables
-HC_ALL_VERSION="${HC_ALL_V:-3.8.3}"
+HC_ALL_VERSION="${HC_ALL_V:-3.8.4}"
 HC_AWS_VERSION="${HC_AWS_V:-2.0.1}"
 REGION="${AWS_REGION:-eu-central-1}"
 
